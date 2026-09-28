@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi"><head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Thực Tế Máy Khoan - 40 LK - MITCO</title>
   <style>
     :root {
@@ -823,6 +825,46 @@
       appearance: none;
       -webkit-appearance: none;
     }
+
+    /* Modal Cài đặt Cloud Sync 1 lần */
+    .sync-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      z-index: 4000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .sync-modal-backdrop.open {
+      display: flex;
+    }
+
+    .sync-modal-card {
+      background: #fff;
+      color: #0f172a;
+      border-radius: 12px;
+      max-width: 520px;
+      width: 100%;
+      padding: 18px 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border: 2px solid #0284c7;
+    }
+
+    .cloud-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(74, 222, 128, 0.45);
+      color: #bbf7d0;
+    }
   </style>
 </head>
 
@@ -835,29 +877,70 @@
       <p>Dự án: Xây dựng nhà máy ô tô • Khu Công nghệ cao Đà Nẵng • M.I.T.C.O (LAS-XD 801) • Khởi công: 26/09/2026</p>
     </div>
     <div class="topbar-right">
-      <div class="clock-pill" id="liveClock">🕒 11:32:15 (28/09/2026) • Ngày thứ 3/36 (Thực: Ngày 3)</div>
+      <div class="cloud-status-pill" id="cloudStatusBadge" title="Trạng thái đồng bộ dữ liệu trực tuyến">
+        ☁️ Đang kiểm tra dữ liệu...
+      </div>
+      <div class="clock-pill" id="liveClock">🕒 --:--:-- | Ngày thứ 2/36</div>
 
-      <div class="admin-only" style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.15);padding:3px 7px;border-radius:6px;">
+      <div class="admin-only"
+        style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.15);padding:3px 7px;border-radius:6px;">
         <span style="font-size:11px;font-weight:700;">Ngày thứ:</span>
         <div class="stepper">
           <button type="button" id="btnDayMinus">−</button>
-          <input type="number" id="inpActiveDay" min="1" max="36" value="2" style="width:38px;">
+          <input type="number" id="inpActiveDay" min="1" max="36" value="2" style="width:38px;" />
           <button type="button" id="btnDayPlus">+</button>
         </div>
       </div>
 
-      <button type="button" class="btn btn-save admin-only" id="btnSave" title="Lưu vào trình duyệt máy này">💾 Lưu</button>
-      <button type="button" class="btn admin-only" id="btnShareLink" style="background:#7c3aed;color:#fff;" title="Copy đường link mang theo toàn bộ dữ liệu hiện tại (chế độ Chủ đầu tư chỉ xem)">🔗 Copy Link CĐT</button>
-      <button type="button" class="btn admin-only" id="btnExportHtml" style="background:#0d9488;color:#fff;" title="Tải file index.html đã nhúng sẵn dữ liệu mới nhất để đưa lên GitHub Pages">📤 Xuất index.html</button>
+      <button type="button" class="btn btn-save admin-only" id="btnSave" title="Lưu và tự động cập nhật trực tuyến lên mạng cho Chủ đầu tư">
+        💾 Lưu (Cập nhật CĐT)
+      </button>
+      <button type="button" class="btn admin-only" id="btnConfigCloud" style="background:rgba(255,255,255,0.16);color:#fff;border-color:rgba(255,255,255,0.3);" title="Cài đặt mã kết nối GitHub Cloud">
+        ⚙️ Khóa Cloud
+      </button>
       <button type="button" class="btn btn-json admin-only" id="btnExportJson">📦 Xuất JSON</button>
       <label class="btn btn-import admin-only" for="fileImportJson">
         📂 Nhập JSON
-        <input type="file" id="fileImportJson" accept=".json" style="display:none;">
+        <input type="file" id="fileImportJson" accept=".json" style="display:none;" />
       </label>
       <button type="button" class="btn btn-reset admin-only" id="btnReset">🔄 Khôi Phục Gốc</button>
+      <button type="button" class="btn" id="btnUnlockAdmin" style="display:none;background:rgba(255,255,255,0.15);color:#fde047;border-color:rgba(255,255,255,0.3);" title="Mở khóa quyền chỉnh sửa dành cho Quản trị viên MITCO">
+        🔑 Quản trị
+      </button>
       <button type="button" class="btn btn-print" onclick="window.print()">🖨️ In</button>
     </div>
   </header>
+
+  <!-- ====== HỘP THOẠI KẾT NỐI GITHUB CLOUD (CHỈ NHẬP 1 LẦN DUY NHẤT) ====== -->
+  <div class="sync-modal-backdrop no-print" id="syncModalBackdrop">
+    <div class="sync-modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h3 style="font-size:15px;font-weight:900;color:#0f4c81;">☁️ CÀI ĐẶT TỰ ĐỘNG CẬP NHẬT CHO CHỦ ĐẦU TƯ (1 LẦN DUY NHẤT)</h3>
+        <button type="button" id="btnCloseSyncModal" style="border:none;background:none;font-size:20px;font-weight:900;cursor:pointer;color:#64748b;">&times;</button>
+      </div>
+      <p style="font-size:12.5px;color:#334155;margin-bottom:10px;">
+        Để mỗi khi anh bấm nút <strong>💾 Lưu</strong> thì trang web của Chủ đầu tư (<code>phucdanang.github.io/tiendo-khaosat</code>) tự động nhảy số liệu mới ngay lập tức, anh làm 2 bước sau (chỉ làm 1 lần duy nhất trên máy này):
+      </p>
+      <ol style="font-size:12.5px;color:#0f172a;padding-left:18px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+        <li>
+          <strong>Bước 1:</strong> Bấm vào nút dưới đây để mở trang cấp mã của GitHub (đã tích sẵn quyền <code>repo</code>):<br />
+          <a href="https://github.com/settings/tokens/new?description=MITCO-TienDoKhaoSat&scopes=repo" target="_blank" rel="noopener"
+            style="display:inline-block;margin-top:4px;padding:6px 12px;background:#0284c7;color:#fff;border-radius:6px;text-decoration:none;font-weight:800;">
+            1️⃣ Mở trang lấy Mã GitHub Token ↗
+          </a>
+        </li>
+        <li>
+          <strong>Bước 2:</strong> Ở trang GitHub vừa mở, anh kéo xuống dưới cùng bấm nút màu xanh lá <strong>"Generate token"</strong> → Copy dãy mã bắt đầu bằng <code>ghp_...</code> rồi dán vào ô dưới đây:
+        </li>
+      </ol>
+      <input type="password" id="inpGithubToken" placeholder="Dán mã ghp_xxxxxxxxxxxxxxxxxxxx vào đây..."
+        style="width:100%;padding:8px 10px;border:2px solid #0284c7;border-radius:6px;font-size:13px;font-weight:700;margin-bottom:12px;" />
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button type="button" class="btn" id="btnCancelSyncModal" style="background:#e2e8f0;color:#334155;">Đóng</button>
+        <button type="button" class="btn btn-save" id="btnConfirmSyncToken">✅ Lưu Khóa &amp; Đồng Bộ Ngay</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ====== NỘI DUNG CHÍNH ====== -->
   <main class="container">
@@ -879,7 +962,7 @@
                 <div class="rig-badge-icon" style="background:var(--rig1-color);">M1</div>
                 <div>
                   <h3 style="font-size:14px;font-weight:900;">MÁY KHOAN SỐ 1 (XY-1)</h3>
-                  <span style="font-size:11px;color:var(--muted);" id="r1SummarySub">Thực tế: 21 LK • Xong: 3 • Đang khoan: BH26</span>
+                  <span style="font-size:11px;color:var(--muted);" id="r1SummarySub">Đã xong: 0 LK</span>
                 </div>
               </div>
               <select id="r1State" class="rig-select-big" style="font-size:11.5px;padding:3px 7px;">
@@ -893,7 +976,7 @@
               <div>
                 <div style="font-size:10.5px;font-weight:700;color:var(--muted);">ĐANG KHOAN LỖ KHOAN:</div>
                 <div style="display:flex;align-items:center;gap:7px;margin-top:3px;">
-                  <select id="r1ActiveLk" class="rig-select-big"><option value="BH01">⏳ BH01 (0/15m)</option><option value="BH02">⏳ BH02 (0/15m)</option><option value="BH03">⏳ BH03 (0/15m)</option><option value="BH04">⏳ BH04 (0/35m)</option><option value="BH05">⏳ BH05 (0/15m)</option><option value="BH06">⏳ BH06 (0/35m)</option><option value="BH07">✅ BH07 (19.5/15m)</option><option value="BH08">⏳ BH08 (0/35m)</option><option value="BH09">⏳ BH09 (0/15m)</option><option value="BH10">⏳ BH10 (0/15m)</option><option value="BH11">⏳ BH11 (0/15m)</option><option value="BH12">⏳ BH12 (0/15m)</option><option value="BH13">⏳ BH13 (0/35m)</option><option value="BH14">⏳ BH14 (0/15m)</option><option value="BH15">⏳ BH15 (0/15m)</option><option value="BH16">⏳ BH16 (0/15m)</option><option value="BH17">✅ BH17 (15/15m)</option><option value="BH18">⏳ BH18 (0/15m)</option><option value="BH19">⏳ BH19 (0/15m)</option><option value="BH20">⏳ BH20 (0/15m)</option><option value="BH21">⏳ BH21 (0/15m)</option><option value="BH22">⏳ BH22 (0/15m)</option><option value="BH23">⏳ BH23 (0/15m)</option><option value="BH24">⏳ BH24 (0/15m)</option><option value="BH25">✅ BH25 (15/15m)</option><option value="BH26">⏳ BH26 (0/15m)</option><option value="BH27">⏳ BH27 (0/15m)</option><option value="BH28">⏳ BH28 (0/15m)</option><option value="BH29">⏳ BH29 (0/15m)</option><option value="BH30">⏳ BH30 (0/35m)</option><option value="BH31">⏳ BH31 (0/15m)</option><option value="BH32">✅ BH32 (24.5/35m)</option><option value="BH33">⏳ BH33 (0/15m)</option><option value="BH34">⏳ BH34 (0/35m)</option><option value="BH35">⏳ BH35 (0/15m)</option><option value="BH36">⏳ BH36 (0/15m)</option><option value="BH37">⏳ BH37 (0/15m)</option><option value="BH38">⏳ BH38 (0/15m)</option><option value="BH39">⏳ BH39 (0/15m)</option><option value="BH40">⏳ BH40 (0/15m)</option></select>
+                  <select id="r1ActiveLk" class="rig-select-big"></select>
                   <button type="button" class="btn btn-sm btn-save" id="btnR1CompleteLk">✅ Xong LK này</button>
                 </div>
               </div>
@@ -908,13 +991,13 @@
               <div style="display:flex;align-items:center;gap:5px;">
                 <div class="stepper" title="Chiều sâu Thực tế (m)">
                   <button type="button" id="btnR1ActMinus">−</button>
-                  <input type="text" inputmode="decimal" id="inpR1Act" value="0">
+                  <input type="text" inputmode="decimal" id="inpR1Act" value="0" />
                   <button type="button" id="btnR1ActPlus">+</button>
                 </div>
                 <strong style="font-size:14px;">/</strong>
                 <div class="stepper" title="Chiều sâu Dự kiến (m)">
                   <button type="button" id="btnR1PlanMinus">−</button>
-                  <input type="text" inputmode="decimal" id="inpR1Plan" value="15">
+                  <input type="text" inputmode="decimal" id="inpR1Plan" value="15" />
                   <button type="button" id="btnR1PlanPlus">+</button>
                 </div>
                 <strong>m</strong>
@@ -932,10 +1015,11 @@
                 <div class="rig-badge-icon" style="background:var(--rig2-color);">M2</div>
                 <div>
                   <h3 style="font-size:14px;font-weight:900;">MÁY KHOAN SỐ 2 (XY-1)</h3>
-                  <span style="font-size:11px;color:var(--muted);" id="r2SummarySub">Thực tế: 19 LK • Xong: 1 • Đang khoan: BH31</span>
+                  <span style="font-size:11px;color:var(--muted);" id="r2SummarySub">Đã xong: 0 LK</span>
                 </div>
               </div>
-              <select id="r2State" class="rig-select-big" style="font-size:11.5px;padding:3px 7px;border-color:var(--rig2-color);color:#b45309;">
+              <select id="r2State" class="rig-select-big"
+                style="font-size:11.5px;padding:3px 7px;border-color:var(--rig2-color);color:#b45309;">
                 <option value="drilling">🟢 Đang khoan</option>
                 <option value="standby">🟡 Tạm dừng</option>
                 <option value="done">✅ Hoàn thành</option>
@@ -946,7 +1030,8 @@
               <div>
                 <div style="font-size:10.5px;font-weight:700;color:var(--muted);">ĐANG KHOAN LỖ KHOAN:</div>
                 <div style="display:flex;align-items:center;gap:7px;margin-top:3px;">
-                  <select id="r2ActiveLk" class="rig-select-big" style="border-color:var(--rig2-color);color:#b45309;"><option value="BH01">⏳ BH01 (0/15m)</option><option value="BH02">⏳ BH02 (0/15m)</option><option value="BH03">⏳ BH03 (0/15m)</option><option value="BH04">⏳ BH04 (0/35m)</option><option value="BH05">⏳ BH05 (0/15m)</option><option value="BH06">⏳ BH06 (0/35m)</option><option value="BH07">✅ BH07 (19.5/15m)</option><option value="BH08">⏳ BH08 (0/35m)</option><option value="BH09">⏳ BH09 (0/15m)</option><option value="BH10">⏳ BH10 (0/15m)</option><option value="BH11">⏳ BH11 (0/15m)</option><option value="BH12">⏳ BH12 (0/15m)</option><option value="BH13">⏳ BH13 (0/35m)</option><option value="BH14">⏳ BH14 (0/15m)</option><option value="BH15">⏳ BH15 (0/15m)</option><option value="BH16">⏳ BH16 (0/15m)</option><option value="BH17">✅ BH17 (15/15m)</option><option value="BH18">⏳ BH18 (0/15m)</option><option value="BH19">⏳ BH19 (0/15m)</option><option value="BH20">⏳ BH20 (0/15m)</option><option value="BH21">⏳ BH21 (0/15m)</option><option value="BH22">⏳ BH22 (0/15m)</option><option value="BH23">⏳ BH23 (0/15m)</option><option value="BH24">⏳ BH24 (0/15m)</option><option value="BH25">✅ BH25 (15/15m)</option><option value="BH26">⏳ BH26 (0/15m)</option><option value="BH27">⏳ BH27 (0/15m)</option><option value="BH28">⏳ BH28 (0/15m)</option><option value="BH29">⏳ BH29 (0/15m)</option><option value="BH30">⏳ BH30 (0/35m)</option><option value="BH31">⏳ BH31 (0/15m)</option><option value="BH32">✅ BH32 (24.5/35m)</option><option value="BH33">⏳ BH33 (0/15m)</option><option value="BH34">⏳ BH34 (0/35m)</option><option value="BH35">⏳ BH35 (0/15m)</option><option value="BH36">⏳ BH36 (0/15m)</option><option value="BH37">⏳ BH37 (0/15m)</option><option value="BH38">⏳ BH38 (0/15m)</option><option value="BH39">⏳ BH39 (0/15m)</option><option value="BH40">⏳ BH40 (0/15m)</option></select>
+                  <select id="r2ActiveLk" class="rig-select-big"
+                    style="border-color:var(--rig2-color);color:#b45309;"></select>
                   <button type="button" class="btn btn-sm btn-save" id="btnR2CompleteLk">✅ Xong LK này</button>
                 </div>
               </div>
@@ -961,13 +1046,13 @@
               <div style="display:flex;align-items:center;gap:5px;">
                 <div class="stepper" title="Chiều sâu Thực tế (m)">
                   <button type="button" id="btnR2ActMinus">−</button>
-                  <input type="text" inputmode="decimal" id="inpR2Act" value="0">
+                  <input type="text" inputmode="decimal" id="inpR2Act" value="0" />
                   <button type="button" id="btnR2ActPlus">+</button>
                 </div>
                 <strong style="font-size:14px;">/</strong>
                 <div class="stepper" title="Chiều sâu Dự kiến (m)">
                   <button type="button" id="btnR2PlanMinus">−</button>
-                  <input type="text" inputmode="decimal" id="inpR2Plan" value="15">
+                  <input type="text" inputmode="decimal" id="inpR2Plan" value="15" />
                   <button type="button" id="btnR2PlanPlus">+</button>
                 </div>
                 <strong>m</strong>
@@ -982,32 +1067,33 @@
           <div class="vol-summary-panel">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <h3 style="font-size:13.5px;font-weight:900;color:#14532d;">📊 TỔNG HỢP: THỰC TẾ / DỰ KIẾN</h3>
-              <span id="overallProjectPctBadge" style="background:#16a34a;color:#fff;font-weight:900;padding:3px 10px;border-radius:20px;font-size:12.5px;">10% KL Khoan</span>
+              <span id="overallProjectPctBadge"
+                style="background:#16a34a;color:#fff;font-weight:900;padding:3px 10px;border-radius:20px;font-size:12.5px;">0%</span>
             </div>
             <div class="vol-kpi-row">
               <div class="vol-kpi-box">
                 <div class="lbl">Tổng Số Lỗ Khoan</div>
-                <div class="val" id="sumHolesText">4 / 40 LK</div>
-                <div style="font-size:10px;color:var(--muted);" id="sumHolesSub">M1 khoan BH26 • M2 khoan BH31</div>
+                <div class="val" id="sumHolesText">0 / 40 LK</div>
+                <div style="font-size:10px;color:var(--muted);" id="sumHolesSub">M1 — M2 đang khoan</div>
               </div>
               <div class="vol-kpi-box">
                 <div class="lbl">Tổng Mét Khoan (TT / DK)</div>
-                <div class="val" id="sumMetersText">74.0 / 740 m</div>
-                <div style="font-size:10px;color:#15803d;font-weight:700;" id="sumMetersPct">Đạt 10% mét khoan</div>
+                <div class="val" id="sumMetersText">0 / 740 m</div>
+                <div style="font-size:10px;color:#15803d;font-weight:700;" id="sumMetersPct">Đạt 0%</div>
               </div>
               <div class="vol-kpi-box">
                 <div class="lbl">Máy 1 (TT / DK)</div>
-                <div class="val" id="sumRig1Text" style="color:var(--rig1-color);">49.5 / 395 m</div>
-                <div style="font-size:10px;color:var(--muted);" id="sumRig1Holes">3 / 21 LK xong</div>
+                <div class="val" id="sumRig1Text" style="color:var(--rig1-color);">0 / 395 m</div>
+                <div style="font-size:10px;color:var(--muted);" id="sumRig1Holes">0 / 21 LK xong</div>
               </div>
               <div class="vol-kpi-box">
                 <div class="lbl">Máy 2 (TT / DK)</div>
-                <div class="val" id="sumRig2Text" style="color:var(--rig2-color);">24.5 / 345 m</div>
-                <div style="font-size:10px;color:var(--muted);" id="sumRig2Holes">1 / 19 LK xong</div>
+                <div class="val" id="sumRig2Text" style="color:var(--rig2-color);">0 / 345 m</div>
+                <div style="font-size:10px;color:var(--muted);" id="sumRig2Holes">0 / 19 LK xong</div>
               </div>
             </div>
             <div class="pbar" style="height:11px;">
-              <div class="pbar-fill green" id="overallMeterBar" style="width: 10%;"></div>
+              <div class="pbar-fill green" id="overallMeterBar" style="width:0%;"></div>
             </div>
           </div>
 
@@ -1015,7 +1101,8 @@
 
         <!-- DANH SÁCH 40 LỖ KHOAN -->
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0;">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:9px;">
+          <div
+            style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:9px;">
             <div>
               <strong style="font-size:13px;color:#0f172a;">
                 🗺️ BẢNG 40 LỖ KHOAN (BH01÷BH40) — THỰC TẾ / DỰ KIẾN (m) • NGÀY BẮT ĐẦU / KẾT THÚC • MÁY ĐANG KHOAN
@@ -1033,13 +1120,15 @@
               <div class="lk-filter-group" id="rigFilterGroup">
                 <span class="lk-filter-label">🚜 Lọc Máy / Trạng thái:</span>
                 <button type="button" class="lk-filter-btn active" data-filter="all" id="fBtnAll">Tất cả (40)</button>
-                <button type="button" class="lk-filter-btn" data-filter="M1" id="fBtnM1">🚜 Máy 1 (21)</button>
-                <button type="button" class="lk-filter-btn" data-filter="M2" id="fBtnM2">🚜 Máy 2 (19)</button>
-                <button type="button" class="lk-filter-btn" data-filter="drilling" id="fBtnDrilling">⛏️ Đang khoan (2)</button>
-                <button type="button" class="lk-filter-btn" data-filter="done" id="fBtnDone">✅ Đã xong (4)</button>
-                <button type="button" class="lk-filter-btn" data-filter="pending" id="fBtnPending">⏳ Chưa khoan (34)</button>
+                <button type="button" class="lk-filter-btn" data-filter="M1" id="fBtnM1">🚜 Máy 1</button>
+                <button type="button" class="lk-filter-btn" data-filter="M2" id="fBtnM2">🚜 Máy 2</button>
+                <button type="button" class="lk-filter-btn" data-filter="drilling" id="fBtnDrilling">⛏️ Đang khoan</button>
+                <button type="button" class="lk-filter-btn" data-filter="done" id="fBtnDone">✅ Đã xong</button>
+                <button type="button" class="lk-filter-btn" data-filter="pending" id="fBtnPending">⏳ Chưa khoan</button>
               </div>
-              <div class="filter-summary-badge" id="filterSummaryBadge">Đang lọc: 40 LK (Xong: 4 LK) • Khối lượng: 74.0 / 740 m</div>
+              <div class="filter-summary-badge" id="filterSummaryBadge">
+                Đang hiển thị: 40 LK • 0.0 / 740 m
+              </div>
             </div>
 
             <!-- Hàng 2: Bộ lọc theo Ngày (Chọn nhanh các ngày có số liệu + Chọn lịch ngày / khoảng ngày) -->
@@ -1055,14 +1144,14 @@
 
                 <!-- Ô chọn 1 ngày -->
                 <span id="singleDatePickerWrap" style="display:inline-flex;align-items:center;gap:4px;">
-                  <input type="date" id="inpFilterDateSingle" class="filter-date-input" title="Chọn ngày cần lọc">
+                  <input type="date" id="inpFilterDateSingle" class="filter-date-input" title="Chọn ngày cần lọc" />
                 </span>
 
                 <!-- Ô chọn khoảng Từ ngày -> Đến ngày -->
                 <span id="rangeDatePickerWrap" style="display:none;align-items:center;gap:4px;">
-                  <input type="date" id="inpFilterDateFrom" class="filter-date-input" title="Từ ngày">
+                  <input type="date" id="inpFilterDateFrom" class="filter-date-input" title="Từ ngày" />
                   <strong style="font-size:11px;">→</strong>
-                  <input type="date" id="inpFilterDateTo" class="filter-date-input" title="Đến ngày">
+                  <input type="date" id="inpFilterDateTo" class="filter-date-input" title="Đến ngày" />
                 </span>
 
                 <button type="button" class="date-chip" id="btnClearDateFilter" style="display:none;color:#dc2626;border-color:#fca5a5;background:#fef2f2;">
@@ -1071,1824 +1160,28 @@
               </div>
 
               <!-- Các nút bấm nhanh theo những ngày đã nhập trong bảng -->
-              <div class="lk-filter-group" id="quickDateChipsContainer"><button type="button" class="date-chip active" data-qdate="all">Tất cả ngày</button><button type="button" class="date-chip " data-qdate="2026-09-26">📅 26/09 (2)</button><button type="button" class="date-chip " data-qdate="2026-09-27">📅 27/09 (3)</button><button type="button" class="date-chip " data-qdate="2026-09-28">📅 28/09 (5)</button><button type="button" class="date-chip " data-qdate="nodate">⏳ Chưa có ngày (33)</button></div>
+              <div class="lk-filter-group" id="quickDateChipsContainer"></div>
             </div>
           </div>
 
           <!-- Chú thích màu sắc nhanh -->
-          <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;font-weight:700;margin-bottom:8px;padding:5px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;">
-            <span><span style="display:inline-block;width:14px;height:9px;background:#e0f2fe;border:1.5px solid var(--rig1-color);vertical-align:middle;border-radius:2px;"></span>
+          <div
+            style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;font-weight:700;margin-bottom:8px;padding:5px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;">
+            <span><span
+                style="display:inline-block;width:14px;height:9px;background:#e0f2fe;border:1.5px solid var(--rig1-color);vertical-align:middle;border-radius:2px;"></span>
               M1 đang khoan</span>
-            <span><span style="display:inline-block;width:14px;height:9px;background:#fef3c7;border:1.5px solid var(--rig2-color);vertical-align:middle;border-radius:2px;"></span>
+            <span><span
+                style="display:inline-block;width:14px;height:9px;background:#fef3c7;border:1.5px solid var(--rig2-color);vertical-align:middle;border-radius:2px;"></span>
               M2 đang khoan</span>
-            <span><span style="display:inline-block;width:14px;height:9px;background:#dcfce7;border:1.5px solid #22c55e;vertical-align:middle;border-radius:2px;"></span>
+            <span><span
+                style="display:inline-block;width:14px;height:9px;background:#dcfce7;border:1.5px solid #22c55e;vertical-align:middle;border-radius:2px;"></span>
               Đã xong</span>
             <span style="color:var(--muted);">Mỗi ô: <strong>[Thực tế / Dự kiến]</strong> (m) • <strong>[Ngày
                 BD]</strong> • <strong>[Ngày KT]</strong></span>
           </div>
 
           <div class="lk-grid-scroll">
-            <div class="lk-grid" id="lkGridContainer">
-            <div class="lk-card" data-card-idx="0">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH01</span>
-                <select class="lk-rig-select" data-idx="0">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="0" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="0" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="0" value="" title="Ngày bắt đầu khoan BH01">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="0" value="" title="Ngày kết thúc khoan BH01">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="0">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="0">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="0">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="1">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH02</span>
-                <select class="lk-rig-select" data-idx="1">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="1" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="1" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="1" value="" title="Ngày bắt đầu khoan BH02">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="1" value="" title="Ngày kết thúc khoan BH02">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="1">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="1">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="1">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="2">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH03</span>
-                <select class="lk-rig-select" data-idx="2">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="2" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="2" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="2" value="2026-09-28" title="Ngày bắt đầu khoan BH03">
-                  <div class="lk-date-display start-date" style="color:#0284c7;">28/09</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="2" value="" title="Ngày kết thúc khoan BH03">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="2">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="2">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="2">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="3">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH04</span>
-                <select class="lk-rig-select" data-idx="3">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="3" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="3" value="35" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="3" value="" title="Ngày bắt đầu khoan BH04">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="3" value="" title="Ngày kết thúc khoan BH04">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="3">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="3">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="3">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="4">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH05</span>
-                <select class="lk-rig-select" data-idx="4">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="4" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="4" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="4" value="" title="Ngày bắt đầu khoan BH05">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="4" value="" title="Ngày kết thúc khoan BH05">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="4">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="4">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="4">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="5">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH06</span>
-                <select class="lk-rig-select" data-idx="5">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="5" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="5" value="35" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="5" value="" title="Ngày bắt đầu khoan BH06">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="5" value="" title="Ngày kết thúc khoan BH06">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="5">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="5">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="5">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card is-done" data-card-idx="6">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH07</span>
-                <select class="lk-rig-select" data-idx="6">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="6" value="19.5" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="6" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill green" style="width:100%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="6" value="2026-09-26" title="Ngày bắt đầu khoan BH07">
-                  <div class="lk-date-display start-date" style="color:#0284c7;">26/09</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="6" value="2026-09-26" title="Ngày kết thúc khoan BH07">
-                  <div class="lk-date-display done-date" style="color:#16a34a;">26/09</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="6">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="6">M2 Khoan</button>
-                <button type="button" class="lk-qbtn active-done" data-action="setDone" data-idx="6">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="7">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH08</span>
-                <select class="lk-rig-select" data-idx="7">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="7" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="7" value="35" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="7" value="" title="Ngày bắt đầu khoan BH08">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="7" value="" title="Ngày kết thúc khoan BH08">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="7">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="7">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="7">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="8">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH09</span>
-                <select class="lk-rig-select" data-idx="8">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="8" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="8" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="8" value="" title="Ngày bắt đầu khoan BH09">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="8" value="" title="Ngày kết thúc khoan BH09">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="8">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="8">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="8">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="9">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH10</span>
-                <select class="lk-rig-select" data-idx="9">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="9" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="9" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="9" value="" title="Ngày bắt đầu khoan BH10">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="9" value="" title="Ngày kết thúc khoan BH10">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="9">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="9">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="9">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="10">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH11</span>
-                <select class="lk-rig-select" data-idx="10">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="10" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="10" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="10" value="" title="Ngày bắt đầu khoan BH11">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="10" value="" title="Ngày kết thúc khoan BH11">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="10">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="10">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="10">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="11">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH12</span>
-                <select class="lk-rig-select" data-idx="11">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="11" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="11" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="11" value="" title="Ngày bắt đầu khoan BH12">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="11" value="" title="Ngày kết thúc khoan BH12">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="11">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="11">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="11">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="12">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH13</span>
-                <select class="lk-rig-select" data-idx="12">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="12" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="12" value="35" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="12" value="" title="Ngày bắt đầu khoan BH13">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="12" value="" title="Ngày kết thúc khoan BH13">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="12">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="12">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="12">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="13">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH14</span>
-                <select class="lk-rig-select" data-idx="13">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="13" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="13" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="13" value="" title="Ngày bắt đầu khoan BH14">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="13" value="" title="Ngày kết thúc khoan BH14">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="13">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="13">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="13">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="14">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH15</span>
-                <select class="lk-rig-select" data-idx="14">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="14" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="14" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="14" value="" title="Ngày bắt đầu khoan BH15">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="14" value="" title="Ngày kết thúc khoan BH15">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="14">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="14">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="14">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="15">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH16</span>
-                <select class="lk-rig-select" data-idx="15">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="15" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="15" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="15" value="" title="Ngày bắt đầu khoan BH16">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="15" value="" title="Ngày kết thúc khoan BH16">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="15">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="15">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="15">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card is-done" data-card-idx="16">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH17</span>
-                <select class="lk-rig-select" data-idx="16">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="16" value="15" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="16" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill green" style="width:100%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="16" value="2026-09-27" title="Ngày bắt đầu khoan BH17">
-                  <div class="lk-date-display start-date" style="color:#0284c7;">27/09</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="16" value="2026-09-27" title="Ngày kết thúc khoan BH17">
-                  <div class="lk-date-display done-date" style="color:#16a34a;">27/09</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="16">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="16">M2 Khoan</button>
-                <button type="button" class="lk-qbtn active-done" data-action="setDone" data-idx="16">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="17">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH18</span>
-                <select class="lk-rig-select" data-idx="17">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="17" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="17" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="17" value="" title="Ngày bắt đầu khoan BH18">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="17" value="" title="Ngày kết thúc khoan BH18">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="17">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="17">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="17">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="18">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH19</span>
-                <select class="lk-rig-select" data-idx="18">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="18" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="18" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="18" value="" title="Ngày bắt đầu khoan BH19">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="18" value="" title="Ngày kết thúc khoan BH19">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="18">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="18">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="18">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="19">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH20</span>
-                <select class="lk-rig-select" data-idx="19">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="19" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="19" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="19" value="" title="Ngày bắt đầu khoan BH20">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="19" value="" title="Ngày kết thúc khoan BH20">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="19">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="19">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="19">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="20">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH21</span>
-                <select class="lk-rig-select" data-idx="20">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="20" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="20" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="20" value="" title="Ngày bắt đầu khoan BH21">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="20" value="" title="Ngày kết thúc khoan BH21">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="20">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="20">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="20">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="21">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH22</span>
-                <select class="lk-rig-select" data-idx="21">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="21" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="21" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="21" value="" title="Ngày bắt đầu khoan BH22">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="21" value="" title="Ngày kết thúc khoan BH22">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="21">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="21">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="21">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="22">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH23</span>
-                <select class="lk-rig-select" data-idx="22">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="22" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="22" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="22" value="" title="Ngày bắt đầu khoan BH23">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="22" value="" title="Ngày kết thúc khoan BH23">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="22">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="22">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="22">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="23">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH24</span>
-                <select class="lk-rig-select" data-idx="23">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="23" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="23" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="23" value="" title="Ngày bắt đầu khoan BH24">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="23" value="" title="Ngày kết thúc khoan BH24">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="23">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="23">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="23">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card is-done" data-card-idx="24">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH25</span>
-                <select class="lk-rig-select" data-idx="24">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="24" value="15" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="24" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill green" style="width:100%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="24" value="2026-09-27" title="Ngày bắt đầu khoan BH25">
-                  <div class="lk-date-display start-date" style="color:#0284c7;">27/09</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="24" value="2026-09-28" title="Ngày kết thúc khoan BH25">
-                  <div class="lk-date-display done-date" style="color:#16a34a;">28/09</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="24">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="24">M2 Khoan</button>
-                <button type="button" class="lk-qbtn active-done" data-action="setDone" data-idx="24">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card is-rig1-drilling" data-card-idx="25">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH26</span>
-                <select class="lk-rig-select" data-idx="25">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="25" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="25" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="25" value="2026-09-28" title="Ngày bắt đầu khoan BH26">
-                  <div class="lk-date-display start-date" style="color:#0284c7;">28/09</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="25" value="" title="Ngày kết thúc khoan BH26">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn active-r1" data-action="setR1" data-idx="25">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="25">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="25">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="26">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH27</span>
-                <select class="lk-rig-select" data-idx="26">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="26" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="26" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="26" value="" title="Ngày bắt đầu khoan BH27">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="26" value="" title="Ngày kết thúc khoan BH27">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="26">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="26">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="26">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="27">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH28</span>
-                <select class="lk-rig-select" data-idx="27">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="27" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="27" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="27" value="" title="Ngày bắt đầu khoan BH28">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="27" value="" title="Ngày kết thúc khoan BH28">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="27">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="27">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="27">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="28">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH29</span>
-                <select class="lk-rig-select" data-idx="28">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="28" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="28" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="28" value="" title="Ngày bắt đầu khoan BH29">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="28" value="" title="Ngày kết thúc khoan BH29">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="28">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="28">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="28">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="29">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH30</span>
-                <select class="lk-rig-select" data-idx="29">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="29" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="29" value="35" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="29" value="" title="Ngày bắt đầu khoan BH30">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="29" value="" title="Ngày kết thúc khoan BH30">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="29">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="29">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="29">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card is-rig2-drilling" data-card-idx="30">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH31</span>
-                <select class="lk-rig-select" data-idx="30">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="30" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="30" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill orange" style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="30" value="2026-09-28" title="Ngày bắt đầu khoan BH31">
-                  <div class="lk-date-display start-date" style="color:#0284c7;">28/09</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="30" value="" title="Ngày kết thúc khoan BH31">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="30">M1 Khoan</button>
-                <button type="button" class="lk-qbtn active-r2" data-action="setR2" data-idx="30">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="30">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card is-done" data-card-idx="31">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH32</span>
-                <select class="lk-rig-select" data-idx="31">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="31" value="24.5" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="31" value="35" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill green" style="width:70%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="31" value="2026-09-26" title="Ngày bắt đầu khoan BH32">
-                  <div class="lk-date-display start-date" style="color:#0284c7;">26/09</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="31" value="2026-09-28" title="Ngày kết thúc khoan BH32">
-                  <div class="lk-date-display done-date" style="color:#16a34a;">28/09</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="31">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="31">M2 Khoan</button>
-                <button type="button" class="lk-qbtn active-done" data-action="setDone" data-idx="31">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="32">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH33</span>
-                <select class="lk-rig-select" data-idx="32">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="32" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="32" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="32" value="" title="Ngày bắt đầu khoan BH33">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="32" value="" title="Ngày kết thúc khoan BH33">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="32">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="32">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="32">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="33">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH34</span>
-                <select class="lk-rig-select" data-idx="33">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="33" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="33" value="35" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="33" value="" title="Ngày bắt đầu khoan BH34">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="33" value="" title="Ngày kết thúc khoan BH34">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="33">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="33">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="33">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="34">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH35</span>
-                <select class="lk-rig-select" data-idx="34">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="34" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="34" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="34" value="" title="Ngày bắt đầu khoan BH35">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="34" value="" title="Ngày kết thúc khoan BH35">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="34">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="34">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="34">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="35">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH36</span>
-                <select class="lk-rig-select" data-idx="35">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="35" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="35" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="35" value="" title="Ngày bắt đầu khoan BH36">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="35" value="" title="Ngày kết thúc khoan BH36">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="35">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="35">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="35">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="36">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH37</span>
-                <select class="lk-rig-select" data-idx="36">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="36" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="36" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="36" value="" title="Ngày bắt đầu khoan BH37">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="36" value="" title="Ngày kết thúc khoan BH37">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="36">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="36">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="36">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="37">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH38</span>
-                <select class="lk-rig-select" data-idx="37">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="37" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="37" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="37" value="" title="Ngày bắt đầu khoan BH38">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="37" value="" title="Ngày kết thúc khoan BH38">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="37">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="37">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="37">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="38">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH39</span>
-                <select class="lk-rig-select" data-idx="38">
-                  <option value="M1">Máy 1</option>
-                  <option value="M2" selected="">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="38" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="38" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="38" value="" title="Ngày bắt đầu khoan BH39">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="38" value="" title="Ngày kết thúc khoan BH39">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="38">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="38">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="38">✓ Xong</button>
-              </div>
-            </div>
-          
-            <div class="lk-card" data-card-idx="39">
-              <!-- Dòng 1: Tên LK + dropdown Máy -->
-              <div class="lk-top">
-                <span class="lk-name">BH40</span>
-                <select class="lk-rig-select" data-idx="39">
-                  <option value="M1" selected="">Máy 1</option>
-                  <option value="M2">Máy 2</option>
-                </select>
-              </div>
-
-              <!-- Dòng 2: Thực tế / Dự kiến (m) — hỗ trợ cả dấu chấm và dấu phẩy -->
-              <div class="lk-vol-row">
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-act" data-idx="39" value="0" title="Chiều sâu Thực tế (m)">
-                <span style="color:var(--muted);">/</span>
-                <input type="text" inputmode="decimal" class="lk-vol-inp inp-lk-plan" data-idx="39" value="15" title="Chiều sâu Dự kiến (m)">
-                <span style="font-size:10px;">m</span>
-              </div>
-
-              <!-- Dòng 3: Mini progress bar -->
-              <div class="pbar" style="height:4px;">
-                <div class="pbar-fill " style="width:0%;"></div>
-              </div>
-
-              <!-- Dòng 4: Ngày Bắt đầu / Kết thúc -->
-              <div class="lk-date-row">
-                <div>
-                  <div class="lk-date-label">▶ Bắt đầu</div>
-                  <input type="date" class="lk-date-inp inp-lk-datestart" data-idx="39" value="" title="Ngày bắt đầu khoan BH40">
-                  <div class="lk-date-display start-date" style="color:#94a3b8;">—</div>
-                </div>
-                <div>
-                  <div class="lk-date-label">⏹ Kết thúc</div>
-                  <input type="date" class="lk-date-inp inp-lk-dateend" data-idx="39" value="" title="Ngày kết thúc khoan BH40">
-                  <div class="lk-date-display done-date" style="color:#94a3b8;">—</div>
-                </div>
-              </div>
-
-              <!-- Dòng 5: 3 nút bấm nhanh -->
-              <div class="lk-quick-btns no-print">
-                <button type="button" class="lk-qbtn " data-action="setR1" data-idx="39">M1 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setR2" data-idx="39">M2 Khoan</button>
-                <button type="button" class="lk-qbtn " data-action="setDone" data-idx="39">✓ Xong</button>
-              </div>
-            </div>
-          </div>
+            <div class="lk-grid" id="lkGridContainer"></div>
           </div>
         </div>
 
@@ -3637,48 +1930,128 @@
           state.activeDay = Math.min(36, Math.max(1, Number(e.target.value) || 1)); renderAll();
         });
 
-        /* Lưu / Xuất / Nhập / Reset */
-        document.getElementById('btnSave').addEventListener('click', () => {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          toast('💾 Đã lưu vào LocalStorage!');
-        });
+        /* Lưu & Tự động đồng bộ trực tuyến lên GitHub cho Chủ Đầu Tư */
+        const GITHUB_OWNER = 'PhucDaNang';
+        const GITHUB_REPO = 'tiendo-khaosat';
+        const GITHUB_BRANCH = 'main';
+        const GITHUB_DATA_PATH = 'data.json';
+        const TOKEN_STORAGE_KEY = 'MITCO_GH_SYNC_TOKEN_V1';
 
-        /* Copy Link gửi Chủ Đầu Tư (nhúng toàn bộ dữ liệu hiện tại vào URL + bật chế độ Chỉ xem) */
-        document.getElementById('btnShareLink').addEventListener('click', () => {
+        function setCloudStatus(text, isError = false) {
+          const badge = document.getElementById('cloudStatusBadge');
+          if (!badge) return;
+          badge.textContent = text;
+          badge.style.background = isError ? 'rgba(239, 68, 68, 0.25)' : 'rgba(34, 197, 94, 0.22)';
+          badge.style.borderColor = isError ? 'rgba(252, 165, 165, 0.5)' : 'rgba(74, 222, 128, 0.45)';
+          badge.style.color = isError ? '#fecaca' : '#bbf7d0';
+        }
+
+        function openSyncModal() {
+          const currentTok = localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+          document.getElementById('inpGithubToken').value = currentTok;
+          document.getElementById('syncModalBackdrop').classList.add('open');
+        }
+
+        function closeSyncModal() {
+          document.getElementById('syncModalBackdrop').classList.remove('open');
+        }
+
+        async function pushStateToGithubCloud(token) {
+          const btnSave = document.getElementById('btnSave');
+          const origText = btnSave.textContent;
+          btnSave.textContent = '⏳ Đang cập nhật CĐT...';
+          btnSave.disabled = true;
+          setCloudStatus('⏳ Đang đẩy số liệu lên mạng...');
+
           try {
-            const jsonStr = JSON.stringify(state);
-            const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
-            const baseUrl = window.location.href.split('#')[0];
-            const shareUrl = `${baseUrl}#cdt=${encoded}`;
-            navigator.clipboard.writeText(shareUrl).then(() => {
-              toast('🔗 Đã copy Link gửi Chủ đầu tư (kèm số liệu mới nhất)!');
-            }).catch(() => {
-              prompt('Copy đường link dưới đây để gửi cho Chủ đầu tư:', shareUrl);
+            const now = new Date();
+            state.updatedAt = Date.now();
+            state.updatedTimeText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} ${fmtDate(now)}`;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+            const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
+            const headers = {
+              'Accept': 'application/vnd.github.v3+json',
+              'Authorization': `Bearer ${token.trim()}`
+            };
+
+            // 1. Kiểm tra sha hiện tại của file data.json trên GitHub (nếu đã có)
+            let currentSha = undefined;
+            const getRes = await fetch(`${apiUrl}?ref=${GITHUB_BRANCH}&t=${Date.now()}`, {
+              headers,
+              cache: 'no-store'
             });
+            if (getRes.ok) {
+              const fileMeta = await getRes.json();
+              currentSha = fileMeta.sha;
+            }
+
+            // 2. Ghi file data.json mới lên GitHub
+            const jsonContent = JSON.stringify(state, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+            const putBody = {
+              message: `Cập nhật tiến độ thực tế (${state.updatedTimeText})`,
+              content: base64Content,
+              branch: GITHUB_BRANCH
+            };
+            if (currentSha) putBody.sha = currentSha;
+
+            const putRes = await fetch(apiUrl, {
+              method: 'PUT',
+              headers: { ...headers, 'Content-Type': 'application/json' },
+              body: JSON.stringify(putBody)
+            });
+
+            if (!putRes.ok) {
+              const errObj = await putRes.json().catch(() => ({}));
+              throw new Error(errObj.message || `HTTP ${putRes.status}`);
+            }
+
+            setCloudStatus(`☁️ Đã đồng bộ CĐT (${state.updatedTimeText})`);
+            toast('✅ Đã Lưu & Tự động cập nhật cho Chủ đầu tư!');
           } catch (err) {
-            toast('❌ Không thể tạo link chia sẻ!');
+            setCloudStatus('⚠️ Lỗi đồng bộ Cloud (Kiểm tra khóa)', true);
+            toast(`❌ Lỗi cập nhật Cloud: ${err.message}. Anh kiểm tra lại Khóa Cloud!`);
+            openSyncModal();
+          } finally {
+            btnSave.textContent = origText;
+            btnSave.disabled = false;
           }
+        }
+
+        document.getElementById('btnSave').addEventListener('click', () => {
+          state.updatedAt = Date.now();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+          if (!token) {
+            toast('💾 Đã lưu tại máy! Hãy nhập Khóa GitHub 1 lần để tự động cập nhật cho Chủ đầu tư.');
+            openSyncModal();
+            return;
+          }
+          pushStateToGithubCloud(token);
         });
 
-        /* Xuất file index.html đã nhúng sẵn dữ liệu mới nhất để up lên GitHub Pages */
-        document.getElementById('btnExportHtml').addEventListener('click', () => {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          const currentHtml = document.documentElement.outerHTML;
-          const embedScript = `window.__EMBEDDED_STATE__ = ${JSON.stringify(state)};`;
-          let outHtml = '<!DOCTYPE html>\n' + currentHtml;
-          if (outHtml.includes('/*__EMBEDDED_STATE_MARKER__*/
-      window.__EMBEDDED_STATE__ = {"activeDay":3,"rig1":{"state":"drilling","currentLk":"BH26"},"rig2":{"state":"drilling","currentLk":"BH31"},"boreholes":[{"code":"BH01","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH02","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH03","rig":"M2","actual":0,"plan":15,"dateStart":"2026-09-28","dateEnd":"","done":false},{"code":"BH04","rig":"M1","actual":0,"plan":35,"dateStart":"","dateEnd":"","done":false},{"code":"BH05","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH06","rig":"M2","actual":0,"plan":35,"dateStart":"","dateEnd":"","done":false},{"code":"BH07","rig":"M1","actual":19.5,"plan":15,"dateStart":"2026-09-26","dateEnd":"2026-09-26","done":true},{"code":"BH08","rig":"M1","actual":0,"plan":35,"dateStart":"","dateEnd":"","done":false},{"code":"BH09","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH10","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH11","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH12","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH13","rig":"M2","actual":0,"plan":35,"dateStart":"","dateEnd":"","done":false},{"code":"BH14","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH15","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH16","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH17","rig":"M1","actual":15,"plan":15,"dateStart":"2026-09-27","dateEnd":"2026-09-27","done":true},{"code":"BH18","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH19","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH20","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH21","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH22","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH23","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH24","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH25","rig":"M1","actual":15,"plan":15,"dateStart":"2026-09-27","dateEnd":"2026-09-28","done":true},{"code":"BH26","rig":"M1","actual":0,"plan":15,"dateStart":"2026-09-28","dateEnd":"","done":false},{"code":"BH27","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH28","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH29","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH30","rig":"M1","actual":0,"plan":35,"dateStart":"","dateEnd":"","done":false},{"code":"BH31","rig":"M2","actual":0,"plan":15,"dateStart":"2026-09-28","dateEnd":"","done":false},{"code":"BH32","rig":"M2","actual":24.5,"plan":35,"dateStart":"2026-09-26","dateEnd":"2026-09-28","done":true},{"code":"BH33","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH34","rig":"M1","actual":0,"plan":35,"dateStart":"","dateEnd":"","done":false},{"code":"BH35","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH36","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH37","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH38","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH39","rig":"M2","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false},{"code":"BH40","rig":"M1","actual":0,"plan":15,"dateStart":"","dateEnd":"","done":false}]};
-      /*__EMBEDDED_STATE_END__*/`
-            );
+        document.getElementById('btnConfigCloud').addEventListener('click', openSyncModal);
+        document.getElementById('btnCloseSyncModal').addEventListener('click', closeSyncModal);
+        document.getElementById('btnCancelSyncModal').addEventListener('click', closeSyncModal);
+
+        document.getElementById('btnUnlockAdmin').addEventListener('click', () => {
+          document.body.classList.remove('readonly-mode');
+          document.getElementById('btnUnlockAdmin').style.display = 'none';
+          openSyncModal();
+        });
+
+        document.getElementById('btnConfirmSyncToken').addEventListener('click', () => {
+          const tok = document.getElementById('inpGithubToken').value.trim();
+          if (!tok) {
+            toast('⚠️ Vui lòng dán mã GitHub Token (ghp_...) vào ô!');
+            return;
           }
-          const blob = new Blob([outHtml], { type: 'text/html;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'index.html';
-          a.click();
-          URL.revokeObjectURL(url);
-          toast('📤 Đã tải xuống file index.html (nhúng sẵn dữ liệu mới nhất)!');
+          localStorage.setItem(TOKEN_STORAGE_KEY, tok);
+          document.body.classList.remove('readonly-mode');
+          document.getElementById('btnUnlockAdmin').style.display = 'none';
+          closeSyncModal();
+          pushStateToGithubCloud(tok);
         });
 
         document.getElementById('btnExportJson').addEventListener('click', () => {
@@ -3699,14 +2072,7 @@
             try {
               const p = JSON.parse(ev.target.result);
               if (p && p.boreholes) {
-                state = p;
-                state.boreholes.forEach(b => {
-                  if (b.dateStart === undefined) b.dateStart = '';
-                  if (b.dateEnd === undefined) b.dateEnd = '';
-                  if (typeof b.done !== 'boolean') {
-                    b.done = (b.actual >= b.plan && b.plan > 0) || Boolean(b.dateEnd && b.actual > 0);
-                  }
-                });
+                normalizeLoadedState(p);
                 renderAll();
                 toast('📂 Nạp JSON thành công!');
               }
@@ -3744,10 +2110,6 @@
           `🕒 ${hh}:${mm}:${ss} (${fmtDate(now)}) • Ngày thứ ${state.activeDay}/36 (Thực: Ngày ${dayNum})`;
       }
 
-      /*__EMBEDDED_STATE_MARKER__*/
-      window.__EMBEDDED_STATE__ = null;
-      /*__EMBEDDED_STATE_END__*/
-
       function normalizeLoadedState(p) {
         if (!p || !p.boreholes) return;
         state = p;
@@ -3760,44 +2122,89 @@
         });
       }
 
+      /* ── TỰ ĐỘNG TẢI DỮ LIỆU MỚI NHẤT TỪ GITHUB CLOUD ── */
+      async function loadLatestFromGithubCloud(isBackgroundPoll = false) {
+        try {
+          const apiUrl = `https://api.github.com/repos/PhucDaNang/tiendo-khaosat/contents/data.json?ref=main&t=${Date.now()}`;
+          const res = await fetch(apiUrl, {
+            headers: { 'Accept': 'application/vnd.github.v3+json' },
+            cache: 'no-store'
+          });
+          if (!res.ok) {
+            if (!isBackgroundPoll) {
+              const badge = document.getElementById('cloudStatusBadge');
+              if (badge) badge.textContent = '☁️ Chưa có bản lưu Cloud (Bấm Lưu để đẩy lên)';
+            }
+            return;
+          }
+          const meta = await res.json();
+          if (meta && meta.content) {
+            const jsonStr = decodeURIComponent(escape(atob(meta.content.replace(/\s/g, ''))));
+            const cloudState = JSON.parse(jsonStr);
+            if (cloudState && cloudState.boreholes) {
+              const localUpdatedAt = Number(state.updatedAt) || 0;
+              const cloudUpdatedAt = Number(cloudState.updatedAt) || 0;
+              const isVisitor = document.body.classList.contains('readonly-mode');
+
+              // Máy Chủ đầu tư luôn nhận dữ liệu Cloud; máy Admin nhận nếu Cloud mới hơn
+              if (isVisitor || cloudUpdatedAt >= localUpdatedAt) {
+                if (!isBackgroundPoll || cloudUpdatedAt !== localUpdatedAt) {
+                  normalizeLoadedState(cloudState);
+                  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                  renderAll();
+                }
+              }
+              const badge = document.getElementById('cloudStatusBadge');
+              if (badge) {
+                badge.textContent = `☁️ Cập nhật lúc: ${cloudState.updatedTimeText || 'Mới nhất'}`;
+              }
+            }
+          }
+        } catch {
+          /* bỏ qua nếu mất mạng tạm thời */
+        }
+      }
+
       /* ── KHỞI TẠO ── */
       function init() {
-        // 1. Ưu tiên đọc dữ liệu từ link chia sẻ Chủ đầu tư (#cdt=...)
-        const hash = window.location.hash || '';
-        if (hash.startsWith('#cdt=')) {
+        const isLocalFile = window.location.protocol === 'file:';
+        const hasAdminToken = Boolean(localStorage.getItem('MITCO_GH_SYNC_TOKEN_V1'));
+
+        // Nếu mở trên web github.io mà chưa có khóa Admin (máy Chủ đầu tư) -> Tự động bật chế độ Chỉ Xem
+        if (!isLocalFile && !hasAdminToken) {
+          document.body.classList.add('readonly-mode');
+          const unlockBtn = document.getElementById('btnUnlockAdmin');
+          if (unlockBtn) unlockBtn.style.display = 'inline-flex';
+        }
+
+        // Đọc LocalStorage trước để hiển thị tức thì
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
           try {
-            const encoded = hash.slice(5);
-            const jsonStr = decodeURIComponent(escape(atob(encoded)));
-            const p = JSON.parse(jsonStr);
-            if (p && p.boreholes) {
-              normalizeLoadedState(p);
-              document.body.classList.add('readonly-mode');
-            }
-          } catch { /* bỏ qua lỗi giải mã */ }
-        } else {
-          // 2. Nếu file đã được xuất kèm dữ liệu nhúng sẵn (window.__EMBEDDED_STATE__)
-          if (window.__EMBEDDED_STATE__ && window.__EMBEDDED_STATE__.boreholes) {
-            normalizeLoadedState(window.__EMBEDDED_STATE__);
-          }
-          // 3. Nếu trên máy quản trị có LocalStorage mới hơn thì ưu tiên đọc LocalStorage
-          const saved = localStorage.getItem(STORAGE_KEY);
-          if (saved) {
-            try {
-              const p = JSON.parse(saved);
-              if (p && p.boreholes) normalizeLoadedState(p);
-            } catch { /* bỏ qua JSON lỗi */ }
-          }
+            const p = JSON.parse(saved);
+            if (p && p.boreholes) normalizeLoadedState(p);
+          } catch { /* bỏ qua JSON lỗi */ }
         }
 
         bindEvents();
         renderAll();
         tickClock();
         setInterval(tickClock, 1000);
+
+        // Tải dữ liệu mới nhất từ GitHub Cloud ngay khi mở trang
+        loadLatestFromGithubCloud(false);
+
+        // Tự động kiểm tra số liệu mới mỗi 15 giây (để Chủ đầu tư đang mở trang cũng tự nhảy số mới)
+        setInterval(() => {
+          if (document.body.classList.contains('readonly-mode')) {
+            loadLatestFromGithubCloud(true);
+          }
+        }, 15000);
       }
 
       init();
     })();
   </script>
+</body>
 
-
-</body></html>
+</html>
