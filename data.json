@@ -237,11 +237,11 @@
     {
       "code": "BH26",
       "rig": "M1",
-      "actual": 0,
+      "actual": 15,
       "plan": 15,
       "dateStart": "2026-09-28",
-      "dateEnd": "",
-      "done": false
+      "dateEnd": "2026-09-28",
+      "done": true
     },
     {
       "code": "BH27",
@@ -370,6 +370,6 @@
       "done": false
     }
   ],
-  "updatedAt": 1790572506390,
-  "updatedTimeText": "12:15 28/09/2026"
+  "updatedAt": 1790573290150,
+  "updatedTimeText": "12:28 28/09/2026"
 }
