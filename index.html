@@ -895,8 +895,8 @@
       <button type="button" class="btn btn-save admin-only" id="btnSave" title="Lưu và tự động cập nhật trực tuyến lên mạng cho Chủ đầu tư">
         💾 Lưu (Cập nhật CĐT)
       </button>
-      <button type="button" class="btn admin-only" id="btnConfigCloud" style="background:rgba(255,255,255,0.16);color:#fff;border-color:rgba(255,255,255,0.3);" title="Cài đặt mã kết nối GitHub Cloud">
-        ⚙️ Khóa Cloud
+      <button type="button" class="btn admin-only" id="btnConfigCloud" style="background:rgba(255,255,255,0.16);color:#fff;border-color:rgba(255,255,255,0.3);" title="Cài đặt mã kết nối GitHub Cloud & Phân quyền Máy 1 / Máy 2">
+        ⚙️ Phân quyền &amp; Cloud
       </button>
       <button type="button" class="btn btn-json admin-only" id="btnExportJson">📦 Xuất JSON</button>
       <label class="btn btn-import admin-only" for="fileImportJson">
@@ -904,40 +904,51 @@
         <input type="file" id="fileImportJson" accept=".json" style="display:none;" />
       </label>
       <button type="button" class="btn btn-reset admin-only" id="btnReset">🔄 Khôi Phục Gốc</button>
-      <button type="button" class="btn" id="btnUnlockAdmin" style="display:none;background:rgba(255,255,255,0.15);color:#fde047;border-color:rgba(255,255,255,0.3);" title="Mở khóa quyền chỉnh sửa dành cho Quản trị viên MITCO">
-        🔑 Quản trị
+      <button type="button" class="btn" id="btnUnlockAdmin" style="display:none;background:rgba(255,255,255,0.15);color:#fde047;border-color:rgba(255,255,255,0.3);" title="Mở khóa quyền chỉnh sửa dành cho Quản trị viên & Kỹ thuật hiện trường MITCO">
+        🔑 Mở khóa Kỹ thuật / Quản lý
       </button>
       <button type="button" class="btn btn-print" onclick="window.print()">🖨️ In</button>
     </div>
   </header>
 
-  <!-- ====== HỘP THOẠI KẾT NỐI GITHUB CLOUD (CHỈ NHẬP 1 LẦN DUY NHẤT) ====== -->
+  <!-- ====== HỘP THOẠI KẾT NỐI GITHUB CLOUD & PHÂN QUYỀN KỸ THUẬT (CHỈ NHẬP 1 LẦN) ====== -->
   <div class="sync-modal-backdrop no-print" id="syncModalBackdrop">
     <div class="sync-modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <h3 style="font-size:15px;font-weight:900;color:#0f4c81;">☁️ CÀI ĐẶT TỰ ĐỘNG CẬP NHẬT CHO CHỦ ĐẦU TƯ (1 LẦN DUY NHẤT)</h3>
+        <h3 style="font-size:15px;font-weight:900;color:#0f4c81;">🔑 CẤP QUYỀN KỸ THUẬT HIỆN TRƯỜNG &amp; ĐỒNG BỘ CĐT</h3>
         <button type="button" id="btnCloseSyncModal" style="border:none;background:none;font-size:20px;font-weight:900;cursor:pointer;color:#64748b;">&times;</button>
       </div>
       <p style="font-size:12.5px;color:#334155;margin-bottom:10px;">
-        Để mỗi khi anh bấm nút <strong>💾 Lưu</strong> thì trang web của Chủ đầu tư (<code>phucdanang.github.io/tiendo-khaosat</code>) tự động nhảy số liệu mới ngay lập tức, anh làm 2 bước sau (chỉ làm 1 lần duy nhất trên máy này):
+        Cài đặt 1 lần duy nhất trên máy này để khi bấm <strong>💾 Lưu</strong> sẽ tự động cập nhật lên trang Chủ đầu tư và <strong>không bị ghi đè dữ liệu giữa 2 máy khoan</strong>:
       </p>
-      <ol style="font-size:12.5px;color:#0f172a;padding-left:18px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
-        <li>
-          <strong>Bước 1:</strong> Bấm vào nút dưới đây để mở trang cấp mã của GitHub (đã tích sẵn quyền <code>repo</code>):<br />
+      <div style="margin-bottom:10px;">
+        <label style="display:block;font-size:12px;font-weight:800;color:#0f4c81;margin-bottom:4px;">
+          👷 1. Chọn vai trò của thiết bị này:
+        </label>
+        <select id="selUserRole" style="width:100%;padding:8px 10px;border:2px solid #cbd5e1;border-radius:6px;font-size:13px;font-weight:800;color:#0f172a;background:#f8fafc;">
+          <option value="ALL">👑 Quản lý chung (Toàn quyền sửa cả Máy 1 &amp; Máy 2)</option>
+          <option value="M1">🚜 Kỹ thuật Máy 1 (Chỉ cập nhật Máy 1 — Tự động giữ nguyên Máy 2)</option>
+          <option value="M2">🚜 Kỹ thuật Máy 2 (Chỉ cập nhật Máy 2 — Tự động giữ nguyên Máy 1)</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;font-size:12px;font-weight:800;color:#0f4c81;margin-bottom:4px;">
+          🔐 2. Mã khóa kết nối GitHub Token (Dùng chung cho Quản lý &amp; 2 Kỹ thuật):
+        </label>
+        <input type="password" id="inpGithubToken" placeholder="Dán mã ghp_xxxxxxxxxxxxxxxxxxxx vào đây..."
+          style="width:100%;padding:8px 10px;border:2px solid #0284c7;border-radius:6px;font-size:13px;font-weight:700;margin-bottom:6px;" />
+        <div style="font-size:11.5px;color:#475569;line-height:1.45;">
+          💡 <em>Nếu anh là Quản lý chưa lấy mã:</em>
           <a href="https://github.com/settings/tokens/new?description=MITCO-TienDoKhaoSat&scopes=repo" target="_blank" rel="noopener"
-            style="display:inline-block;margin-top:4px;padding:6px 12px;background:#0284c7;color:#fff;border-radius:6px;text-decoration:none;font-weight:800;">
-            1️⃣ Mở trang lấy Mã GitHub Token ↗
+            style="display:inline-block;margin-left:4px;padding:3px 8px;background:#0284c7;color:#fff;border-radius:4px;text-decoration:none;font-weight:800;">
+            Lấy mã GitHub Token tại đây ↗
           </a>
-        </li>
-        <li>
-          <strong>Bước 2:</strong> Ở trang GitHub vừa mở, anh kéo xuống dưới cùng bấm nút màu xanh lá <strong>"Generate token"</strong> → Copy dãy mã bắt đầu bằng <code>ghp_...</code> rồi dán vào ô dưới đây:
-        </li>
-      </ol>
-      <input type="password" id="inpGithubToken" placeholder="Dán mã ghp_xxxxxxxxxxxxxxxxxxxx vào đây..."
-        style="width:100%;padding:8px 10px;border:2px solid #0284c7;border-radius:6px;font-size:13px;font-weight:700;margin-bottom:12px;" />
+          (Chọn <em>No expiration</em> → Bấm <em>Generate token</em> → Gửi mã <code>ghp_...</code> này qua Zalo cho 2 Kỹ thuật dán vào đây).
+        </div>
+      </div>
       <div style="display:flex;justify-content:flex-end;gap:8px;">
         <button type="button" class="btn" id="btnCancelSyncModal" style="background:#e2e8f0;color:#334155;">Đóng</button>
-        <button type="button" class="btn btn-save" id="btnConfirmSyncToken">✅ Lưu Khóa &amp; Đồng Bộ Ngay</button>
+        <button type="button" class="btn btn-save" id="btnConfirmSyncToken">✅ Lưu Phân Quyền &amp; Đồng Bộ Ngay</button>
       </div>
     </div>
   </div>
@@ -1267,6 +1278,13 @@
 
       // Theo dõi lỗ khoan vừa được sửa số mét để khi bấm "✓ Xong" ngay lập tức sẽ giữ nguyên số mét vừa nhập
       let lastEditedHoleIdx = null;
+
+      // Theo dõi các lỗ khoan và thông tin máy vừa được sửa trên thiết bị này để gộp thông minh (không đè dữ liệu giữa 2 Kỹ thuật)
+      const dirtyBoreholes = new Set();
+      const dirtyMeta = { rig1: false, rig2: false, activeDay: false, fullReplace: false };
+      function markHoleDirty(code) {
+        if (code) dirtyBoreholes.add(code);
+      }
 
       // Trạng thái bộ lọc Máy & Ngày
       let filterRig = 'all';         // 'all' | 'M1' | 'M2' | 'drilling' | 'done' | 'pending'
@@ -1649,7 +1667,9 @@
         // Đổi máy
         container.querySelectorAll('.lk-rig-select').forEach(sel => {
           sel.addEventListener('change', () => {
-            state.boreholes[+sel.dataset.idx].rig = sel.value;
+            const b = state.boreholes[+sel.dataset.idx];
+            b.rig = sel.value;
+            markHoleDirty(b.code);
             renderAll();
           });
         });
@@ -1668,6 +1688,7 @@
               if (!b.dateEnd) b.dateEnd = new Date().toISOString().slice(0, 10);
             }
             lastEditedHoleIdx = idx;
+            markHoleDirty(b.code);
             syncCardUI(idx);
             renderTopOverview();
           };
@@ -1685,6 +1706,7 @@
             const b = state.boreholes[idx];
             b.plan = Math.max(0.1, parseMeterInput(inp.value, 15));
             lastEditedHoleIdx = idx;
+            markHoleDirty(b.code);
             syncCardUI(idx);
             renderTopOverview();
           };
@@ -1700,6 +1722,7 @@
           inp.addEventListener('change', () => {
             const b = state.boreholes[+inp.dataset.idx];
             b.dateStart = inp.value;
+            markHoleDirty(b.code);
             renderAll();
           });
         });
@@ -1709,6 +1732,7 @@
           inp.addEventListener('change', () => {
             const b = state.boreholes[+inp.dataset.idx];
             b.dateEnd = inp.value;
+            markHoleDirty(b.code);
             renderAll();
           });
         });
@@ -1724,17 +1748,21 @@
               b.rig = 'M1';
               state.rig1.state = 'drilling';
               state.rig1.currentLk = b.code;
+              dirtyMeta.rig1 = true;
               if (!b.dateStart) {
                 b.dateStart = new Date().toISOString().slice(0, 10);
               }
+              markHoleDirty(b.code);
               toast(`🚜 Máy 1 đang khoan ${b.code}`);
             } else if (act === 'setR2') {
               b.rig = 'M2';
               state.rig2.state = 'drilling';
               state.rig2.currentLk = b.code;
+              dirtyMeta.rig2 = true;
               if (!b.dateStart) {
                 b.dateStart = new Date().toISOString().slice(0, 10);
               }
+              markHoleDirty(b.code);
               toast(`🚜 Máy 2 đang khoan ${b.code}`);
             } else if (act === 'setDone') {
               const currentlyDone = isHoleDone(b);
@@ -1758,6 +1786,7 @@
                 }
                 b.dateEnd = '';
               }
+              markHoleDirty(b.code);
             }
             renderAll();
           });
@@ -1817,22 +1846,24 @@
         document.getElementById('r1ActiveLk').addEventListener('change', e => {
           state.rig1.currentLk = e.target.value;
           state.rig1.state = 'drilling';
+          dirtyMeta.rig1 = true;
           const bh = state.boreholes.find(b => b.code === e.target.value);
-          if (bh) { bh.rig = 'M1'; if (!bh.dateStart) bh.dateStart = new Date().toISOString().slice(0, 10); }
+          if (bh) { bh.rig = 'M1'; if (!bh.dateStart) bh.dateStart = new Date().toISOString().slice(0, 10); markHoleDirty(bh.code); }
           renderAll();
           toast(`🚜 Máy 1 đang khoan ${e.target.value}`);
         });
         document.getElementById('r2ActiveLk').addEventListener('change', e => {
           state.rig2.currentLk = e.target.value;
           state.rig2.state = 'drilling';
+          dirtyMeta.rig2 = true;
           const bh = state.boreholes.find(b => b.code === e.target.value);
-          if (bh) { bh.rig = 'M2'; if (!bh.dateStart) bh.dateStart = new Date().toISOString().slice(0, 10); }
+          if (bh) { bh.rig = 'M2'; if (!bh.dateStart) bh.dateStart = new Date().toISOString().slice(0, 10); markHoleDirty(bh.code); }
           renderAll();
           toast(`🚜 Máy 2 đang khoan ${e.target.value}`);
         });
 
-        document.getElementById('r1State').addEventListener('change', e => { state.rig1.state = e.target.value; renderAll(); });
-        document.getElementById('r2State').addEventListener('change', e => { state.rig2.state = e.target.value; renderAll(); });
+        document.getElementById('r1State').addEventListener('change', e => { state.rig1.state = e.target.value; dirtyMeta.rig1 = true; renderAll(); });
+        document.getElementById('r2State').addEventListener('change', e => { state.rig2.state = e.target.value; dirtyMeta.rig2 = true; renderAll(); });
 
         /* Stepper Máy 1 */
         function modR1(field, delta, exact) {
@@ -1846,6 +1877,7 @@
             if (bh.actual === 0) bh.done = false;
             else if (bh.actual >= bh.plan && bh.plan > 0) bh.done = true;
           }
+          markHoleDirty(bh.code);
           renderAll();
         }
         document.getElementById('btnR1ActMinus').addEventListener('click', () => modR1('actual', -0.5));
@@ -1861,11 +1893,14 @@
             bh.done = true;
             if (!(bh.actual > 0)) bh.actual = bh.plan;
             if (!bh.dateEnd) bh.dateEnd = new Date().toISOString().slice(0, 10);
+            markHoleDirty(bh.code);
           }
+          dirtyMeta.rig1 = true;
           const next = state.boreholes.find(b => b.rig === 'M1' && !isHoleDone(b));
           if (next) {
             state.rig1.currentLk = next.code;
             if (!next.dateStart) next.dateStart = new Date().toISOString().slice(0, 10);
+            markHoleDirty(next.code);
             toast(`✅ Máy 1 xong ${bh.code} (${bh.actual}/${bh.plan}m) → chuyển sang ${next.code}`);
           } else {
             state.rig1.state = 'done';
@@ -1886,6 +1921,7 @@
             if (bh.actual === 0) bh.done = false;
             else if (bh.actual >= bh.plan && bh.plan > 0) bh.done = true;
           }
+          markHoleDirty(bh.code);
           renderAll();
         }
         document.getElementById('btnR2ActMinus').addEventListener('click', () => modR2('actual', -0.5));
@@ -1901,11 +1937,14 @@
             bh.done = true;
             if (!(bh.actual > 0)) bh.actual = bh.plan;
             if (!bh.dateEnd) bh.dateEnd = new Date().toISOString().slice(0, 10);
+            markHoleDirty(bh.code);
           }
+          dirtyMeta.rig2 = true;
           const next = state.boreholes.find(b => b.rig === 'M2' && !isHoleDone(b));
           if (next) {
             state.rig2.currentLk = next.code;
             if (!next.dateStart) next.dateStart = new Date().toISOString().slice(0, 10);
+            markHoleDirty(next.code);
             toast(`✅ Máy 2 xong ${bh.code} (${bh.actual}/${bh.plan}m) → chuyển sang ${next.code}`);
           } else {
             state.rig2.state = 'done';
@@ -1918,24 +1957,38 @@
         document.getElementById('btnAddLk').addEventListener('click', () => {
           const n = state.boreholes.length + 1;
           const code = 'BH' + String(n).padStart(2, '0');
-          state.boreholes.push({ code, rig: 'M1', actual: 0, plan: 15, done: false, dateStart: '', dateEnd: '' });
+          const role = localStorage.getItem('MITCO_USER_ROLE_V1') || 'ALL';
+          const defaultRig = role === 'M2' ? 'M2' : 'M1';
+          state.boreholes.push({ code, rig: defaultRig, actual: 0, plan: 15, done: false, dateStart: '', dateEnd: '' });
+          markHoleDirty(code);
           renderAll();
           toast(`➕ Đã thêm lỗ khoan phát sinh ${code} (Dự kiến 15m)`);
         });
 
         /* Ngày thứ */
-        document.getElementById('btnDayMinus').addEventListener('click', () => { state.activeDay = Math.max(1, state.activeDay - 1); renderAll(); });
-        document.getElementById('btnDayPlus').addEventListener('click', () => { state.activeDay = Math.min(36, state.activeDay + 1); renderAll(); });
+        document.getElementById('btnDayMinus').addEventListener('click', () => { state.activeDay = Math.max(1, state.activeDay - 1); dirtyMeta.activeDay = true; renderAll(); });
+        document.getElementById('btnDayPlus').addEventListener('click', () => { state.activeDay = Math.min(36, state.activeDay + 1); dirtyMeta.activeDay = true; renderAll(); });
         document.getElementById('inpActiveDay').addEventListener('change', e => {
-          state.activeDay = Math.min(36, Math.max(1, Number(e.target.value) || 1)); renderAll();
+          state.activeDay = Math.min(36, Math.max(1, Number(e.target.value) || 1)); dirtyMeta.activeDay = true; renderAll();
         });
 
-        /* Lưu & Tự động đồng bộ trực tuyến lên GitHub cho Chủ Đầu Tư */
+        /* Lưu & Tự động đồng bộ trực tuyến lên GitHub cho Chủ Đầu Tư + 2 Kỹ Thuật Hiện Trường */
         const GITHUB_OWNER = 'PhucDaNang';
         const GITHUB_REPO = 'tiendo-khaosat';
         const GITHUB_BRANCH = 'main';
         const GITHUB_DATA_PATH = 'data.json';
         const TOKEN_STORAGE_KEY = 'MITCO_GH_SYNC_TOKEN_V1';
+        const ROLE_STORAGE_KEY = 'MITCO_USER_ROLE_V1';
+
+        function updateRoleButtonLabel() {
+          const role = localStorage.getItem(ROLE_STORAGE_KEY) || 'ALL';
+          const btn = document.getElementById('btnConfigCloud');
+          if (!btn) return;
+          if (role === 'M1') btn.textContent = '🚜 Quyền: KT Máy 1';
+          else if (role === 'M2') btn.textContent = '🚜 Quyền: KT Máy 2';
+          else btn.textContent = '👑 Quyền: Quản lý chung';
+        }
+        updateRoleButtonLabel();
 
         function setCloudStatus(text, isError = false) {
           const badge = document.getElementById('cloudStatusBadge');
@@ -1948,7 +2001,9 @@
 
         function openSyncModal() {
           const currentTok = localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+          const currentRole = localStorage.getItem(ROLE_STORAGE_KEY) || 'ALL';
           document.getElementById('inpGithubToken').value = currentTok;
+          document.getElementById('selUserRole').value = currentRole;
           document.getElementById('syncModalBackdrop').classList.add('open');
         }
 
@@ -1956,26 +2011,67 @@
           document.getElementById('syncModalBackdrop').classList.remove('open');
         }
 
+        // Gộp thông minh dữ liệu giữa máy hiện tại và bản mới nhất trên Cloud để 2 Kỹ thuật không bao giờ ghi đè nhau
+        function mergeLocalIntoCloudState(cloudState) {
+          if (!cloudState || !Array.isArray(cloudState.boreholes) || dirtyMeta.fullReplace) {
+            return state;
+          }
+          const role = localStorage.getItem(ROLE_STORAGE_KEY) || 'ALL';
+          const merged = JSON.parse(JSON.stringify(cloudState));
+
+          // 1. Gộp thông tin trạng thái 2 máy khoan & ngày thứ
+          if (dirtyMeta.activeDay) {
+            merged.activeDay = state.activeDay;
+          } else {
+            merged.activeDay = Math.max(Number(cloudState.activeDay) || 1, Number(state.activeDay) || 1);
+          }
+
+          if (role === 'M1') {
+            merged.rig1 = JSON.parse(JSON.stringify(state.rig1));
+            if (dirtyMeta.rig2) merged.rig2 = JSON.parse(JSON.stringify(state.rig2));
+          } else if (role === 'M2') {
+            merged.rig2 = JSON.parse(JSON.stringify(state.rig2));
+            if (dirtyMeta.rig1) merged.rig1 = JSON.parse(JSON.stringify(state.rig1));
+          } else {
+            if (dirtyMeta.rig1 || !merged.rig1) merged.rig1 = JSON.parse(JSON.stringify(state.rig1));
+            if (dirtyMeta.rig2 || !merged.rig2) merged.rig2 = JSON.parse(JSON.stringify(state.rig2));
+          }
+
+          // 2. Gộp danh sách lỗ khoan
+          const cloudMap = new Map(merged.boreholes.map(b => [b.code, b]));
+          const hasExplicitDirty = dirtyBoreholes.size > 0;
+
+          state.boreholes.forEach(localHole => {
+            const shouldApplyLocal = hasExplicitDirty
+              ? dirtyBoreholes.has(localHole.code)
+              : (role === 'ALL' || localHole.rig === role);
+
+            if (shouldApplyLocal || !cloudMap.has(localHole.code)) {
+              cloudMap.set(localHole.code, JSON.parse(JSON.stringify(localHole)));
+            }
+          });
+
+          merged.boreholes = Array.from(cloudMap.values());
+          return merged;
+        }
+
         async function pushStateToGithubCloud(token) {
           const btnSave = document.getElementById('btnSave');
           const origText = btnSave.textContent;
           btnSave.textContent = '⏳ Đang cập nhật CĐT...';
           btnSave.disabled = true;
-          setCloudStatus('⏳ Đang đẩy số liệu lên mạng...');
+          setCloudStatus('⏳ Đang đồng bộ số liệu lên mạng...');
 
           try {
-            const now = new Date();
-            state.updatedAt = Date.now();
-            state.updatedTimeText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} ${fmtDate(now)}`;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-
+            const role = localStorage.getItem(ROLE_STORAGE_KEY) || 'ALL';
+            const roleLabel = role === 'M1' ? 'KT Máy 1' : (role === 'M2' ? 'KT Máy 2' : 'Quản lý');
             const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
             const headers = {
               'Accept': 'application/vnd.github.v3+json',
               'Authorization': `Bearer ${token.trim()}`
             };
 
-            // 1. Kiểm tra sha hiện tại của file data.json trên GitHub (nếu đã có)
+            // 1. Lấy bản data.json mới nhất trên GitHub để gộp thông minh (tránh 2 Kỹ thuật lưu đè nhau)
             let currentSha = undefined;
             const getRes = await fetch(`${apiUrl}?ref=${GITHUB_BRANCH}&t=${Date.now()}`, {
               headers,
@@ -1984,13 +2080,26 @@
             if (getRes.ok) {
               const fileMeta = await getRes.json();
               currentSha = fileMeta.sha;
+              if (fileMeta.content) {
+                try {
+                  const jsonStr = decodeURIComponent(escape(atob(fileMeta.content.replace(/\s/g, ''))));
+                  const latestCloudState = JSON.parse(jsonStr);
+                  normalizeLoadedState(mergeLocalIntoCloudState(latestCloudState));
+                } catch { /* giữ nguyên state nếu file cũ lỗi */ }
+              }
             }
 
-            // 2. Ghi file data.json mới lên GitHub
+            const now = new Date();
+            state.updatedAt = Date.now();
+            state.updatedBy = roleLabel;
+            state.updatedTimeText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} ${fmtDate(now)} (${roleLabel})`;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+            // 2. Ghi file data.json đã gộp lên GitHub
             const jsonContent = JSON.stringify(state, null, 2);
             const base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
             const putBody = {
-              message: `Cập nhật tiến độ thực tế (${state.updatedTimeText})`,
+              message: `Cập nhật tiến độ (${state.updatedTimeText})`,
               content: base64Content,
               branch: GITHUB_BRANCH
             };
@@ -2007,11 +2116,19 @@
               throw new Error(errObj.message || `HTTP ${putRes.status}`);
             }
 
-            setCloudStatus(`☁️ Đã đồng bộ CĐT (${state.updatedTimeText})`);
-            toast('✅ Đã Lưu & Tự động cập nhật cho Chủ đầu tư!');
+            // Xóa danh sách chờ sau khi đã đẩy thành công
+            dirtyBoreholes.clear();
+            dirtyMeta.rig1 = false;
+            dirtyMeta.rig2 = false;
+            dirtyMeta.activeDay = false;
+            dirtyMeta.fullReplace = false;
+
+            renderAll();
+            setCloudStatus(`☁️ Đã đồng bộ: ${state.updatedTimeText}`);
+            toast(`✅ [${roleLabel}] Đã Lưu & Tự động cập nhật lên trang Chủ đầu tư!`);
           } catch (err) {
             setCloudStatus('⚠️ Lỗi đồng bộ Cloud (Kiểm tra khóa)', true);
-            toast(`❌ Lỗi cập nhật Cloud: ${err.message}. Anh kiểm tra lại Khóa Cloud!`);
+            toast(`❌ Lỗi cập nhật Cloud: ${err.message}. Vui lòng kiểm tra lại Khóa Cloud!`);
             openSyncModal();
           } finally {
             btnSave.textContent = origText;
@@ -2043,11 +2160,19 @@
 
         document.getElementById('btnConfirmSyncToken').addEventListener('click', () => {
           const tok = document.getElementById('inpGithubToken').value.trim();
+          const role = document.getElementById('selUserRole').value || 'ALL';
           if (!tok) {
             toast('⚠️ Vui lòng dán mã GitHub Token (ghp_...) vào ô!');
             return;
           }
           localStorage.setItem(TOKEN_STORAGE_KEY, tok);
+          localStorage.setItem(ROLE_STORAGE_KEY, role);
+          updateRoleButtonLabel();
+
+          // Tự động lọc đúng máy khoan nếu là Kỹ thuật Máy 1 hoặc Kỹ thuật Máy 2
+          if (role === 'M1' || role === 'M2') {
+            filterRig = role;
+          }
           document.body.classList.remove('readonly-mode');
           document.getElementById('btnUnlockAdmin').style.display = 'none';
           closeSyncModal();
@@ -2073,8 +2198,9 @@
               const p = JSON.parse(ev.target.result);
               if (p && p.boreholes) {
                 normalizeLoadedState(p);
+                dirtyMeta.fullReplace = true;
                 renderAll();
-                toast('📂 Nạp JSON thành công!');
+                toast('📂 Nạp JSON thành công! Bấm Lưu để đồng bộ lên Cloud.');
               }
             } catch { toast('❌ File JSON không hợp lệ!'); }
           };
@@ -2090,6 +2216,7 @@
             rig2: { state: 'drilling', currentLk: 'BH32' },   // M2 đang khoan BH32
             boreholes: buildRealStateBoreholes()             // Dữ liệu thực tế 27/09
           };
+          dirtyMeta.fullReplace = true;
           renderAll();
           toast('🔄 Đã khôi phục dữ liệu gốc!');
         });
@@ -2124,6 +2251,10 @@
 
       /* ── TỰ ĐỘNG TẢI DỮ LIỆU MỚI NHẤT TỪ GITHUB CLOUD ── */
       async function loadLatestFromGithubCloud(isBackgroundPoll = false) {
+        // Nếu người dùng đang gõ vào một ô input thì tạm hoãn làm mới giao diện để không làm mất con trỏ
+        if (isBackgroundPoll && document.activeElement && ['INPUT', 'SELECT'].includes(document.activeElement.tagName)) {
+          return;
+        }
         try {
           const apiUrl = `https://api.github.com/repos/PhucDaNang/tiendo-khaosat/contents/data.json?ref=main&t=${Date.now()}`;
           const res = await fetch(apiUrl, {
@@ -2145,18 +2276,20 @@
               const localUpdatedAt = Number(state.updatedAt) || 0;
               const cloudUpdatedAt = Number(cloudState.updatedAt) || 0;
               const isVisitor = document.body.classList.contains('readonly-mode');
+              const hasUnsavedLocalEdits = dirtyBoreholes.size > 0 || dirtyMeta.rig1 || dirtyMeta.rig2 || dirtyMeta.activeDay || dirtyMeta.fullReplace;
 
-              // Máy Chủ đầu tư luôn nhận dữ liệu Cloud; máy Admin nhận nếu Cloud mới hơn
-              if (isVisitor || cloudUpdatedAt >= localUpdatedAt) {
+              // Máy Chủ đầu tư luôn nhận Cloud; máy Kỹ thuật/Quản lý nhận khi Cloud có bản mới hơn (và giữ lại các ô đang sửa dở nếu có)
+              if (isVisitor || cloudUpdatedAt > localUpdatedAt || !isBackgroundPoll) {
                 if (!isBackgroundPoll || cloudUpdatedAt !== localUpdatedAt) {
-                  normalizeLoadedState(cloudState);
+                  const nextState = hasUnsavedLocalEdits ? mergeLocalIntoCloudState(cloudState) : cloudState;
+                  normalizeLoadedState(nextState);
                   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                   renderAll();
                 }
               }
               const badge = document.getElementById('cloudStatusBadge');
               if (badge) {
-                badge.textContent = `☁️ Cập nhật lúc: ${cloudState.updatedTimeText || 'Mới nhất'}`;
+                badge.textContent = `☁️ Cập nhật: ${cloudState.updatedTimeText || 'Mới nhất'}`;
               }
             }
           }
@@ -2169,12 +2302,16 @@
       function init() {
         const isLocalFile = window.location.protocol === 'file:';
         const hasAdminToken = Boolean(localStorage.getItem('MITCO_GH_SYNC_TOKEN_V1'));
+        const savedRole = localStorage.getItem('MITCO_USER_ROLE_V1') || 'ALL';
 
-        // Nếu mở trên web github.io mà chưa có khóa Admin (máy Chủ đầu tư) -> Tự động bật chế độ Chỉ Xem
+        // Nếu mở trên web github.io mà chưa có khóa Admin/Kỹ thuật (máy Chủ đầu tư) -> Tự động bật chế độ Chỉ Xem
         if (!isLocalFile && !hasAdminToken) {
           document.body.classList.add('readonly-mode');
           const unlockBtn = document.getElementById('btnUnlockAdmin');
           if (unlockBtn) unlockBtn.style.display = 'inline-flex';
+        } else if (savedRole === 'M1' || savedRole === 'M2') {
+          // Nếu thiết bị đã cài quyền Kỹ thuật Máy 1 hoặc Máy 2 -> mặc định lọc sẵn đúng máy đó cho dễ nhập
+          filterRig = savedRole;
         }
 
         // Đọc LocalStorage trước để hiển thị tức thì
@@ -2194,11 +2331,9 @@
         // Tải dữ liệu mới nhất từ GitHub Cloud ngay khi mở trang
         loadLatestFromGithubCloud(false);
 
-        // Tự động kiểm tra số liệu mới mỗi 15 giây (để Chủ đầu tư đang mở trang cũng tự nhảy số mới)
+        // Tự động kiểm tra số liệu mới mỗi 15 giây cho cả Chủ đầu tư và 2 Kỹ thuật hiện trường
         setInterval(() => {
-          if (document.body.classList.contains('readonly-mode')) {
-            loadLatestFromGithubCloud(true);
-          }
+          loadLatestFromGithubCloud(true);
         }, 15000);
       }
 
