@@ -1,12 +1,12 @@
 {
-  "activeDay": 2,
+  "activeDay": 3,
   "rig1": {
-    "state": "standby",
-    "currentLk": "BH35"
+    "state": "drilling",
+    "currentLk": "BH26"
   },
   "rig2": {
     "state": "drilling",
-    "currentLk": "BH32"
+    "currentLk": "BH31"
   },
   "boreholes": [
     {
@@ -14,362 +14,362 @@
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH02",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH03",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
-      "dateStart": "",
-      "dateEnd": ""
+      "dateStart": "2026-09-28",
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH04",
       "rig": "M1",
       "actual": 0,
       "plan": 35,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH05",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH06",
       "rig": "M2",
       "actual": 0,
       "plan": 35,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH07",
       "rig": "M1",
       "actual": 19.5,
-      "plan": 19.5,
-      "done": true,
+      "plan": 15,
       "dateStart": "2026-09-26",
-      "dateEnd": "2026-09-26"
+      "dateEnd": "2026-09-26",
+      "done": true
     },
     {
       "code": "BH08",
       "rig": "M1",
       "actual": 0,
       "plan": 35,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH09",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH10",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH11",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH12",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH13",
       "rig": "M2",
       "actual": 0,
       "plan": 35,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH14",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH15",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH16",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH17",
       "rig": "M1",
       "actual": 15,
       "plan": 15,
-      "done": true,
       "dateStart": "2026-09-27",
-      "dateEnd": "2026-09-27"
+      "dateEnd": "2026-09-27",
+      "done": true
     },
     {
       "code": "BH18",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH19",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH20",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH21",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH22",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH23",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH24",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH25",
       "rig": "M1",
-      "actual": 0,
+      "actual": 15,
       "plan": 15,
-      "done": false,
-      "dateStart": "",
-      "dateEnd": ""
+      "dateStart": "2026-09-27",
+      "dateEnd": "2026-09-28",
+      "done": true
     },
     {
       "code": "BH26",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
-      "dateStart": "",
-      "dateEnd": ""
+      "dateStart": "2026-09-28",
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH27",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH28",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH29",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH30",
       "rig": "M1",
       "actual": 0,
       "plan": 35,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH31",
-      "rig": "M1",
+      "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
-      "dateStart": "",
-      "dateEnd": ""
+      "dateStart": "2026-09-28",
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH32",
       "rig": "M2",
-      "actual": 0,
+      "actual": 24.5,
       "plan": 35,
-      "done": false,
       "dateStart": "2026-09-26",
-      "dateEnd": ""
+      "dateEnd": "2026-09-28",
+      "done": true
     },
     {
       "code": "BH33",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH34",
       "rig": "M1",
       "actual": 0,
       "plan": 35,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH35",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH36",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH37",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH38",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH39",
       "rig": "M2",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     },
     {
       "code": "BH40",
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "done": false,
       "dateStart": "",
-      "dateEnd": ""
+      "dateEnd": "",
+      "done": false
     }
   ],
-  "updatedAt": 1790572478178,
-  "updatedTimeText": "12:14 28/09/2026"
+  "updatedAt": 1790572506390,
+  "updatedTimeText": "12:15 28/09/2026"
 }
