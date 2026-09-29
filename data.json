@@ -221,7 +221,7 @@
       "rig": "M1",
       "actual": 0,
       "plan": 15,
-      "dateStart": "2026-09-28",
+      "dateStart": "2026-09-29",
       "dateEnd": "",
       "done": false
     },
@@ -311,7 +311,7 @@
       "rig": "M2",
       "actual": 0,
       "plan": 35,
-      "dateStart": "2026-09-28",
+      "dateStart": "2026-09-29",
       "dateEnd": "",
       "done": false
     },
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1790592169822,
-  "updatedTimeText": "17:42 28/09/2026 (Quản lý)",
+  "updatedAt": 1790642508125,
+  "updatedTimeText": "07:41 29/09/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
