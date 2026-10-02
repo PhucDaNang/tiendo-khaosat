@@ -237,10 +237,10 @@
     {
       "code": "BH26",
       "rig": "M1",
-      "actual": 27,
+      "actual": 35,
       "plan": 15,
-      "dateStart": "2026-09-30",
-      "dateEnd": "2026-10-01",
+      "dateStart": "2026-10-01",
+      "dateEnd": "2026-10-02",
       "done": true
     },
     {
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1790902856681,
-  "updatedTimeText": "08:00 02/10/2026 (Quản lý)",
+  "updatedAt": 1790910122248,
+  "updatedTimeText": "10:02 02/10/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
