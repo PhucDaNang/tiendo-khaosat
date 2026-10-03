@@ -2,7 +2,7 @@
   "activeDay": 3,
   "rig1": {
     "state": "drilling",
-    "currentLk": "BH06"
+    "currentLk": "BH01"
   },
   "rig2": {
     "state": "drilling",
@@ -39,11 +39,11 @@
     {
       "code": "BH04",
       "rig": "M1",
-      "actual": 0,
+      "actual": 21,
       "plan": 35,
       "dateStart": "2026-10-02",
-      "dateEnd": "",
-      "done": false
+      "dateEnd": "2026-10-03",
+      "done": true
     },
     {
       "code": "BH05",
@@ -200,12 +200,12 @@
     },
     {
       "code": "BH22",
-      "rig": "M1",
-      "actual": 0,
+      "rig": "M2",
+      "actual": 15,
       "plan": 15,
-      "dateStart": "",
-      "dateEnd": "",
-      "done": false
+      "dateStart": "2026-10-03",
+      "dateEnd": "2026-10-03",
+      "done": true
     },
     {
       "code": "BH23",
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1790945676330,
-  "updatedTimeText": "19:54 02/10/2026 (Quản lý)",
+  "updatedAt": 1791000754507,
+  "updatedTimeText": "11:12 03/10/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
