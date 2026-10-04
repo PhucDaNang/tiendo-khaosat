@@ -92,7 +92,7 @@
     },
     {
       "code": "BH10",
-      "rig": "M2",
+      "rig": "M1",
       "actual": 0,
       "plan": 15,
       "dateStart": "2026-10-04",
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1791089988448,
-  "updatedTimeText": "11:59 04/10/2026 (Quản lý)",
+  "updatedAt": 1791090068836,
+  "updatedTimeText": "12:01 04/10/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
