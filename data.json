@@ -191,12 +191,12 @@
     },
     {
       "code": "BH21",
-      "rig": "M1",
-      "actual": 0,
+      "rig": "M2",
+      "actual": 15,
       "plan": 15,
       "dateStart": "2026-10-04",
-      "dateEnd": "",
-      "done": false
+      "dateEnd": "2026-10-05",
+      "done": true
     },
     {
       "code": "BH22",
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1791198109073,
-  "updatedTimeText": "18:01 05/10/2026 (Quản lý)",
+  "updatedAt": 1791198208773,
+  "updatedTimeText": "18:03 05/10/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
