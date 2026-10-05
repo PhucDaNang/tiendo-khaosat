@@ -6,7 +6,7 @@
   },
   "rig2": {
     "state": "drilling",
-    "currentLk": "BH11"
+    "currentLk": "BH30"
   },
   "boreholes": [
     {
@@ -272,10 +272,10 @@
     },
     {
       "code": "BH30",
-      "rig": "M1",
+      "rig": "M2",
       "actual": 0,
       "plan": 35,
-      "dateStart": "",
+      "dateStart": "2026-10-05",
       "dateEnd": "",
       "done": false
     },
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1791198268833,
-  "updatedTimeText": "18:04 05/10/2026 (Quản lý)",
+  "updatedAt": 1791198428252,
+  "updatedTimeText": "18:07 05/10/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
