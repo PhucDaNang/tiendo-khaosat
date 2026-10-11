@@ -183,11 +183,11 @@
     {
       "code": "BH20",
       "rig": "M2",
-      "actual": 0,
+      "actual": 15,
       "plan": 15,
-      "dateStart": "",
-      "dateEnd": "",
-      "done": false
+      "dateStart": "2026-10-11",
+      "dateEnd": "2026-10-11",
+      "done": true
     },
     {
       "code": "BH21",
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1791712425254,
-  "updatedTimeText": "16:53 11/10/2026 (Quản lý)",
+  "updatedAt": 1791712448914,
+  "updatedTimeText": "16:54 11/10/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
