@@ -93,11 +93,11 @@
     {
       "code": "BH10",
       "rig": "M1",
-      "actual": 0,
+      "actual": 15,
       "plan": 15,
       "dateStart": "2026-10-04",
-      "dateEnd": "",
-      "done": false
+      "dateEnd": "2026-10-11",
+      "done": true
     },
     {
       "code": "BH11",
@@ -110,12 +110,12 @@
     },
     {
       "code": "BH12",
-      "rig": "M1",
-      "actual": 0,
+      "rig": "M2",
+      "actual": 15,
       "plan": 15,
-      "dateStart": "",
-      "dateEnd": "",
-      "done": false
+      "dateStart": "2026-10-11",
+      "dateEnd": "2026-10-11",
+      "done": true
     },
     {
       "code": "BH13",
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1791545362917,
-  "updatedTimeText": "18:29 09/10/2026 (Quản lý)",
+  "updatedAt": 1791712425254,
+  "updatedTimeText": "16:53 11/10/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
