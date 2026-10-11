@@ -1,5 +1,5 @@
 {
-  "activeDay": 3,
+  "activeDay": 9,
   "rig1": {
     "state": "drilling",
     "currentLk": "BH36"
@@ -370,7 +370,7 @@
       "done": false
     }
   ],
-  "updatedAt": 1791712601735,
-  "updatedTimeText": "16:56 11/10/2026 (Quản lý)",
+  "updatedAt": 1791712650489,
+  "updatedTimeText": "16:57 11/10/2026 (Quản lý)",
   "updatedBy": "Quản lý"
 }
